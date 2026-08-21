@@ -6,13 +6,13 @@ const Patient = require('./models/patient');
 const app = express();
 
 async function rateLimiter(req, res, next) {
-  const ip = req.ip; // isteği atan kişinin IP'si (basit bir tanımlayıcı olarak)
+  const ip = req.ip; 
   const key = `ratelimit:${ip}`;
 
   const count = await redisClient.incr(key);
 
   if (count === 1) {
-    await redisClient.expire(key, 30); // 30 saniyelik pencere
+    await redisClient.expire(key, 30); 
   }
 
   console.log(`IP: ${ip} - İstek sayısı: ${count}`);
@@ -41,7 +41,7 @@ app.get('/patient/:id', rateLimiter, async (req, res) => {
   const cacheKey = `patient:${patientId}`;
   const viewCountKey = `views:${patientId}`;
 
-  // Görüntülenme sayacını artır
+  
   const viewCount = await redisClient.incr(viewCountKey);
   console.log(`Görüntülenme sayısı: ${viewCount}`);
 
@@ -84,7 +84,6 @@ app.put('/patient/:id', async (req, res) => {
       return res.status(404).send('Hasta bulunamadı');
     }
 
-    // Cache invalidation - eski cache'i sil
     await redisClient.del(cacheKey);
     console.log('Cache silindi:', cacheKey);
 
